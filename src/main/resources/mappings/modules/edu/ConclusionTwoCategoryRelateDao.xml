@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.edu.dao.ConclusionTwoCategoryRelateDao">
+
+	<sql id="conclusionTwoCategoryRelateColumns">
+		a.id AS "id",
+		a.student_conclusion_id AS "conclusionId",
+		a.twocategory_id AS "twoCategoryId",
+	</sql>
+
+	<sql id="conclusionTwoCategoryRelateJoins">
+	</sql>
+
+	<select id="get" resultType="ConclusionTwoCategoryRelate">
+		SELECT
+		<include refid="conclusionTwoCategoryRelateColumns"/>
+		FROM studentconclusion_twocategory_relate a
+		<include refid="conclusionTwoCategoryRelateJoins"/>
+		WHERE a.id = #{id}
+	</select>
+
+	<insert id="insert">
+		INSERT INTO studentconclusion_twocategory_relate(
+		id,
+		student_conclusion_id,
+		twocategory_id
+		) VALUES (
+		#{id},
+		#{conclusionId},
+		#{twoCategoryId}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE studentconclusion_twocategory_relate SET
+		student_conclusion_id = #{conclusionId},
+		twocategory_id = #{twoCategoryId}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		DELETE FROM studentconclusion_twocategory_relate
+		WHERE id = #{id}
+	</update>
+
+</mapper>

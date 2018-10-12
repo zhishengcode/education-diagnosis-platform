@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.edu.dao.ConclusionDao">
+
+	<sql id="conclusionColumns">
+		a.id AS "id",
+		a.teacher_id AS "teacher.id",
+		a.student_id AS "student.id",
+		a.createtime AS "createtime",
+		a.conclusion AS "conclusion",
+		a.status AS "status",
+		t.name AS "teacher.name",
+		s.name AS "student.name"
+	</sql>
+
+	<sql id="conclusionJoins">
+		LEFT JOIN teacher t ON t.id = a.teacher_id
+		LEFT JOIN student s ON s.id = a.student_id
+	</sql>
+
+	<select id="get" resultType="Conclusion">
+		SELECT
+		<include refid="conclusionColumns"/>
+		FROM conclusion a
+		<include refid="conclusionJoins"/>
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="Conclusion">
+		SELECT
+		<include refid="conclusionColumns"/>
+		FROM conclusion a
+		<include refid="conclusionJoins"/>
+		<where>
+
+			<if test="id != null and id != ''">
+				AND a.id = #{id}
+			</if>
+			<if test="teacher != null and teacher != ''">
+				AND a.teacher_id = #{teacher.id}
+			</if>
+			<if test="student != null and student != ''">
+				AND a.student_id = #{student.id}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="Conclusion">
+		SELECT
+		<include refid="conclusionColumns"/>
+		FROM conclusion a
+		<include refid="conclusionJoins"/>
+		<where>
+
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert">
+		INSERT INTO conclusion(
+			id,
+			teacher_id,
+			student_id,
+			createtime,
+			conclusion,
+			status
+		) VALUES (
+			#{id},
+			#{teacher.id},
+			#{student.id},
+			#{createtime},
+			#{conclusion},
+			#{status}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE conclusion SET 	
+			teacher_id = #{teacher.id},
+			student_id = #{student.id},
+			createtime = #{createtime},
+			conclusion = #{conclusion}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		DELETE FROM conclusion
+		WHERE id = #{id}
+	</update>
+
+</mapper>

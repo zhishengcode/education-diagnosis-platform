@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.edu.dao.TwocategoryDao">
+
+	<sql id="twocategoryColumns">
+		a.id AS "id",
+		a.onecategoryid AS "onecategoryid.id",
+		c.firstCategoryName AS "onecategoryid.firstCategoryName",
+		a.twocategoryname AS "twocategoryname",
+		a.twocategoryvalue AS "twocategoryvalue",
+		a.characterid AS "characterid",
+		a.status AS "status",
+		a.create_date AS "createDate",
+		a.del_flag AS "delFlag"
+	</sql>
+
+	<sql id="twocategoryJoins">
+		LEFT JOIN onecategory c ON c.id = a.onecategoryid
+	</sql>
+
+	<select id="get" resultType="Twocategory">
+		SELECT
+		<include refid="twocategoryColumns"/>
+		FROM twocategory a
+		<include refid="twocategoryJoins"/>
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="Twocategory">
+		SELECT
+		<include refid="twocategoryColumns"/>
+		FROM twocategory a
+		<include refid="twocategoryJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="onecategoryid != null and onecategoryid.id!= '' and onecategoryid.id!=null">
+				AND a.onecategoryid = #{onecategoryid.id}
+			</if>
+			<if test="onecategoryid != null and onecategoryid.firstcategoryname != ''">
+				AND a.onecategoryid in (select id from onecategory where firstcategoryname like   CONCAT('%',#{onecategoryid.firstcategoryname},'%'))
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findListByStudentConclusion" resultType="Twocategory">
+		SELECT
+		<include refid="twocategoryColumns"/>
+		FROM twocategory a
+		<include refid="twocategoryJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="onecategoryid != null and onecategoryid.id != ''">
+				AND a.onecategoryid = #{onecategoryid.id}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+
+
+	<select id="findAllList" resultType="Twocategory">
+		SELECT
+		<include refid="twocategoryColumns"/>
+		FROM twocategory a
+		<include refid="twocategoryJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert">
+		INSERT INTO twocategory(
+			id,
+			onecategoryid,
+			twocategoryname,
+			twocategoryvalue,
+			characterid,
+			status,
+			create_date,
+			del_flag
+		) VALUES (
+			#{id},
+			#{onecategoryid.id},
+			#{twocategoryname},
+			#{twocategoryvalue},
+			#{characterid},
+			#{status},
+			#{createDate},
+			#{delFlag}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE twocategory SET 	
+			twocategoryname = #{twocategoryname},
+			twocategoryvalue = #{twocategoryvalue},
+			characterid = #{characterid},
+			status = #{status}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		UPDATE twocategory SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+
+</mapper>

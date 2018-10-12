@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.edu.dao.GradeDao">
+
+	<sql id="gradeColumns">
+		a.id AS "id",
+		a.name AS "name",
+		a.status AS "status",
+		a.sort AS "sort",
+		a.createtime AS "createtime"
+	</sql>
+
+	<select id="findGradeList" resultType="Grade">
+		SELECT
+		<include refid="gradeColumns"/>
+		FROM grade a
+		ORDER BY a.sort
+	</select>
+
+</mapper>

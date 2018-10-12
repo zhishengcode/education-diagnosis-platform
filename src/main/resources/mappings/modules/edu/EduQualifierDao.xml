@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.edu.dao.EduQualifierDao">
+    
+	<sql id="eduQualifierColumns">
+		 r.id as "id",
+         r.qualifier_name as "qualifierName",
+         r.qualifier_value as "qualifierValue",
+         r.sort as "sort",
+         r.status as "status",
+         r.create_date as "createDate"
+	</sql>
+	<sql id="tableName">
+		edu_qualifier r
+	</sql>
+
+	<select id="findList" resultType="EduQualifier">
+		SELECT 
+			<include refid="eduQualifierColumns"/>
+		FROM
+		<include refid="tableName"/>
+			order by r.sort ASC
+	</select>
+
+</mapper>

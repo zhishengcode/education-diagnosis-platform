@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.student.dao.StudentDao">
+    
+	<sql id="studentColumns">
+		a.id AS "id",
+		a.name AS "name",
+		a.age AS "age",
+		a.gender AS "gender",
+		a.mobile AS "mobile",
+		a.teacher_id AS "teacher.id",
+		a.address AS "address",
+		a.status AS "status",
+		a.createtime AS "createtime",
+		t.name AS "teacher.name"
+	</sql>
+	
+	<sql id="studentJoins">
+		LEFT JOIN teacher t ON t.id = a.teacher_id
+	</sql>
+    
+	<select id="get" resultType="Student">
+		SELECT 
+			<include refid="studentColumns"/>
+		FROM student a
+		<include refid="studentJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="Student">
+		SELECT 
+			<include refid="studentColumns"/>
+		FROM student a
+		<include refid="studentJoins"/>
+		<where>
+			
+			<if test="name != null and name != ''">
+				AND a.name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{name}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{name}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{name},'%')</if>
+			</if>
+			<if test="mobile != null and mobile != ''">
+				AND a.mobile = #{mobile}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="Student">
+		SELECT 
+			<include refid="studentColumns"/>
+		FROM student a
+		<include refid="studentJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO student(
+			id,
+			name,
+			age,
+			gender,
+			mobile,
+			teacher_id,
+			address,
+			status,
+			createtime
+		) VALUES (
+			#{id},
+			#{name},
+			#{age},
+			#{gender},
+			#{mobile},
+			#{teacher.id},
+			#{address},
+			#{status},
+			#{createtime}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE student SET 	
+			name = #{name},
+			age = #{age},
+			gender = #{gender},
+			mobile = #{mobile},
+			teacher_id = #{teacher.id},
+			address = #{address},
+			status = #{status},
+			createtime = #{createtime}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		DELETE FROM student
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

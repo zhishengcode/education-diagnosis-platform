@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.edu.dao.PersonalityCharacteristicsDao">
+    
+	<sql id="cateChaColumns">
+		   s.id as "id",
+		   s.characteristic_name as "characteristicName",
+		   s.characteristic_value as "characteristicValue",
+		   s.sort as "sort",
+		   s.status as "status",
+		   s.create_date as "createDate"
+
+	</sql>
+
+	<sql id="tableName">
+		personality_characteristics s
+	</sql>
+	<insert id="insert">
+		INSERT INTO personality_characteristics(
+		   id,
+		   characteristic_name,
+		   characteristic_value,
+		   sort,
+		   status,
+		   create_date
+		) VALUES (
+			#{id},
+			#{characteristicName},
+			#{characteristicValue},
+			#{sort},
+			#{status},
+			#{createDate}
+		)
+	</insert>
+	
+	<select id="findList" resultType="PersonalityCharacteristics">
+		SELECT 
+			<include refid="cateChaColumns"/>
+		FROM
+		<include refid="tableName"/>
+		<where>
+
+			<if test="characteristicName != null and characteristicName != ''">
+				 s.characteristic_name like CONCAT('%',#{characteristicName},'%')
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				order by s.sort ASC
+			</otherwise>
+		</choose>
+	</select>
+	<select id="countcharacteristicByName" resultType="int"  parameterType="map">
+		select count(0) from personality_characteristics where characteristic_name= #{characteristicName}
+		<if test="id!=null and id!=''"> AND id!= #{id}</if>
+	</select>
+
+	<select id="selectCharacteristicScoreByName" resultType="PersonalityCharacteristics"  parameterType="map">
+		select
+			<include refid="cateChaColumns"/>
+		from
+			<include refid="tableName"/>
+		where characteristic_name= #{characteristicName}
+		order by s.sort asc
+	</select>
+
+	<select id="get" resultType="PersonalityCharacteristics">
+		SELECT
+		<include refid="cateChaColumns"/>
+		FROM
+		<include refid="tableName"/>
+		WHERE s.id = #{id}
+	</select>
+	<update id="update">
+		UPDATE personality_characteristics SET
+		characteristic_name = #{characteristicName},
+		characteristic_value = #{characteristicValue},
+		sort = #{sort},
+		status=#{status}
+		WHERE id = #{id}
+	</update>
+	<delete id="delete">
+		delete from personality_characteristics where id=#{id}
+	</delete>
+</mapper>

@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.edu.dao.StudentConclusionDao">
+
+	<sql id="studentConclusionColumns">
+		a.id AS "id",
+		a.student_id AS "student",
+		a.evaluation_type AS "evaluationType",
+		a.teacher_id AS "teacher.id",
+		a.characterids AS "characterids",
+		a.charactervalues AS "charactervalues",
+		a.conclustion AS "conclustion",
+		a.status AS "status",
+		a.createtime AS "createtime",
+		a.conclusion_name AS "conclusionName",
+		a.echarts_score AS "echartsScore",
+		a.school AS "school",
+		a.grade AS "grade",
+		a.age AS "age",
+		a.org_id AS "orgId"
+	</sql>
+
+	<sql id="studentConclusionJoins">
+		LEFT JOIN sys_user u ON u.id = a.teacher_id
+	</sql>
+
+	<select id="get" resultType="StudentConclusion">
+		SELECT
+		<include refid="studentConclusionColumns"/>
+		FROM student_conclusion a
+		<include refid="studentConclusionJoins"/>
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="StudentConclusion">
+		SELECT
+		<include refid="studentConclusionColumns"/>
+		FROM student_conclusion a
+		<include refid="studentConclusionJoins"/>
+		<where>
+
+			<if test="student != null and student != ''">
+				AND a.student_id like CONCAT('%',#{student},'%')
+			</if>
+			<if test="teacher != null and teacher != ''">
+				AND a.teacher_id = #{teacher.id}
+			</if>
+		</where>
+		order by a.createtime DESC
+		<!--<choose>-->
+		<!--<when test="page !=null and page.orderBy != null and page.orderBy != ''">-->
+		<!--ORDER BY ${page.orderBy}-->
+		<!--</when>-->
+		<!--<otherwise>-->
+		<!--</otherwise>-->
+		<!--</choose>-->
+	</select>
+
+
+	<select id="findListByConclusion" resultType="StudentConclusion">
+		SELECT
+		<include refid="studentConclusionColumns"/>
+		FROM student_conclusion a
+		<include refid="studentConclusionJoins"/>
+		<where>
+			<if test="student != null and student != ''">
+				AND a.student_id like CONCAT('%',#{student},'%')
+			</if>
+			<if test="teacher != null and teacher != ''">
+				AND a.teacher_id = #{teacher.id}
+			</if>
+			${sqlMap.dsf}
+    	</where>
+
+    order by a.createtime DESC
+    <!--<choose>-->
+		<!--<when test="page !=null and page.orderBy != null and page.orderBy != ''">-->
+		<!--ORDER BY ${page.orderBy}-->
+		<!--</when>-->
+		<!--<otherwise>-->
+		<!--</otherwise>-->
+		<!--</choose>-->
+	</select>
+
+	<select id="findAllList" resultType="StudentConclusion">
+		SELECT
+		<include refid="studentConclusionColumns"/>
+		FROM student_conclusion a
+		<include refid="studentConclusionJoins"/>
+		<where>
+
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert">
+		INSERT INTO student_conclusion(
+		id,
+		student_id,
+		evaluation_type,
+		teacher_id,
+		characterids,
+		charactervalues,
+		conclustion,
+		createtime,
+		echarts_score,
+		school,
+		grade,
+		age,
+		org_Id,
+		status
+		<if test="id!=conclusionName and conclusionName!=''">
+			,conclusion_name
+		</if>
+		) VALUES (
+		#{id},
+		#{student},
+		#{evaluationType},
+		#{teacher.id},
+		#{characterids},
+		#{charactervalues},
+		#{conclustion},
+		#{createtime},
+		#{echartsScore},
+		#{school},
+		#{grade},
+		#{age},
+		#{orgId},
+		#{status}
+		<if test="id!=conclusionName and conclusionName!=''">
+			,#{conclusionName}
+		</if>
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE student_conclusion SET
+		student_id =#{student},
+		evaluation_type=#{evaluationType},
+		teacher_id = #{teacher.id},
+		characterids = #{characterids},
+		charactervalues = #{charactervalues},
+		conclustion = #{conclustion},
+		echarts_score = #{echartsScore},
+		school = #{school},
+		grade = #{grade},
+		age = #{age},
+		org_id = #{orgId},
+		status = #{status}
+		<if test="id!=conclusionName and conclusionName!=''">
+			,conclusion_name=#{conclusionName}
+		</if>
+
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		DELETE FROM student_conclusion
+		WHERE id = #{id}
+	</update>
+
+	<select id="countStudentConclusionByNo" resultType="int"  parameterType="map">
+		select count(0) from student_conclusion where student_id= #{studentNo}
+		<if test="id!=null and id!=''"> AND id!= #{id}</if>
+	</select>
+
+	<select id="selectConclusionByCharacterIds" resultType="java.util.Map"  parameterType="java.util.List">
+		select p.characteristic_name as 'characterName',p.sort as 'sort',group_concat(c.character_name ORDER BY c.character_name asc  separator '，') as 'characterDimension' from characterdict c
+		join personality_characteristics p
+		on c.personality_characteristics_id = p.id
+		where c.id in(
+		select t.character_id from cate_cha t where t.category_id
+		in
+		<foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+		) and c.del_flag!='1'
+		group by p.characteristic_name,p.sort
+		order by p.sort
+	</select>
+
+	<select id="selectEchartsJsonByCharacterIds" resultType="java.util.Map"  parameterType="java.util.List">
+		select p.characteristic_name as 'dimension',p.sort as 'sort',round(sum(c.character_value)) as 'score' from characterdict c
+		join personality_characteristics p
+		on c.personality_characteristics_id = p.id
+		where c.id in(
+		select t.character_id from cate_cha t where t.category_id
+		in
+		<foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+		) and c.del_flag!='1'
+		group by p.characteristic_name,p.sort having p.characteristic_name in('情绪管理','思维管理','心态管理','乐群性','组织能力')
+		order by p.sort ASC
+	</select>
+
+	<!--<select id="selectColumnEchartsJsonByCharacterIds" resultType="java.util.Map" parameterType="java.util.List">-->
+		<!--select p.characteristic_name as 'dimension',p.sort as 'sort',	IF(round(sum(case when c.character_value > 0 then c.character_value else 0 end)/count(c.character_value>0 or null))+-->
+		<!--round(sum(case when c.character_value <![CDATA[<]]> 0 then c.character_value else 0 end)/count(c.character_value<![CDATA[<]]>0 or null)) IS NULL, 0, round(sum(case when c.character_value > 0 then c.character_value else 0 end)/count(c.character_value>0 or null))+-->
+		<!--round(sum(case when c.character_value <![CDATA[<]]> 0 then c.character_value else 0 end)/count(c.character_value<![CDATA[<]]>0 or null)))  as 'score'-->
+		<!--from characterdict c-->
+		<!--join personality_characteristics p-->
+		<!--on c.personality_characteristics_id = p.id-->
+		<!--where c.id in(-->
+		<!--select t.character_id from cate_cha t where t.category_id-->
+		<!--in-->
+		<!--<foreach collection="list" index="index" item="item" open="(" separator="," close=")">-->
+			<!--#{item}-->
+		<!--</foreach>-->
+		<!--)-->
+		<!--group by p.characteristic_name,p.sort having p.characteristic_name in('学习能力','自制能力','性格素养','内心边界')-->
+		<!--order by p.sort asc;-->
+	<!--</select>-->
+
+	<select id="selectColumnEchartsJsonByCharacterIds" resultType="java.util.Map" parameterType="java.util.List">
+		select p.characteristic_name as 'dimension',p.sort as 'sort',	IF(round(sum(case when c.character_value > 0 then c.character_value else 0 end))+
+		round(sum(case when c.character_value <![CDATA[<]]> 0 then c.character_value else 0 end)) IS NULL, 0, round(sum(case when c.character_value > 0 then c.character_value else 0 end))+
+		round(sum(case when c.character_value <![CDATA[<]]> 0 then c.character_value else 0 end)))  as 'score'
+		from characterdict c
+		join personality_characteristics p
+		on c.personality_characteristics_id = p.id
+		where c.id in(
+		select t.character_id from cate_cha t where t.category_id
+		in
+		<foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+		)
+		group by p.characteristic_name,p.sort having p.characteristic_name in('学习能力','自制能力','性格素养','内心边界')
+		order by p.sort asc;
+	</select>
+	
+</mapper>

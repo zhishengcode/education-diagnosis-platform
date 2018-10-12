@@ -1,0 +1,8 @@
+.idea/
+bin/
+*.iml
+target/
+test/
+*.txt
+*.cfg
+*.md

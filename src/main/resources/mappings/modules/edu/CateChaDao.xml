@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.edu.dao.CateChaDao">
+
+	<sql id="cateChaColumns">
+		a.id AS "id",
+		a.category_id AS "categoryId",
+		a.character_id AS "characterId",
+		a.eduqualifier_id as "eduqualifierId"
+	</sql>
+
+	<sql id="cateChaJoins">
+	</sql>
+
+	<select id="get" resultType="CateCha">
+		SELECT
+		<include refid="cateChaColumns"/>
+		FROM cate_cha a
+		<include refid="cateChaJoins"/>
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="CateCha">
+		SELECT
+		<include refid="cateChaColumns"/>
+		FROM cate_cha a
+		<include refid="cateChaJoins"/>
+		<where>
+
+			<if test="categoryId != null and categoryId != ''">
+				AND a.category_id = #{categoryId}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="CateCha">
+		SELECT
+		<include refid="cateChaColumns"/>
+		FROM cate_cha a
+		<include refid="cateChaJoins"/>
+		<where>
+
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert">
+		INSERT INTO cate_cha(
+		id,
+		category_id,
+		character_id,
+		eduqualifier_id
+		) VALUES (
+		#{id},
+		#{categoryId},
+		#{characterId},
+		#{eduqualifierId}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE cate_cha SET
+		category_id = #{categoryId},
+		character_id = #{characterId},
+		eduqualifier_id=#{eduqualifierId}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		DELETE FROM cate_cha
+		WHERE category_id = #{id}
+	</update>
+
+</mapper>

@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.edu.dao.CharacterdictDao">
+
+	<sql id="characterdictColumns">
+		a.id AS "id",
+		a.character_name AS "characterName",
+		a.character_value AS "characterValue",
+		a.sort AS "sort",
+		a.del_flag AS "delFlag",
+		a.create_date AS "createDate",
+		a.personality_characteristics_id AS "personalityCharacteristicsId"
+	</sql>
+
+	<sql id="characterdictJoins">
+	</sql>
+
+	<select id="get" resultType="Characterdict">
+		SELECT
+		<include refid="characterdictColumns"/>
+		FROM characterdict a
+		<include refid="characterdictJoins"/>
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="Characterdict">
+		SELECT
+		<include refid="characterdictColumns"/>
+		FROM characterdict a
+		<include refid="characterdictJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="characterName != null and characterName != ''">
+				AND a.character_name like CONCAT('%',#{characterName},'%')
+			</if>
+		</where>
+		ORDER BY a.character_name ASC
+		<!--<choose>-->
+		<!--<when test="page !=null and page.orderBy != null and page.orderBy != ''">-->
+		<!--ORDER BY create_date ASC-->
+		<!--</when>-->
+		<!--<otherwise>-->
+		<!--</otherwise>-->
+		<!--</choose>-->
+	</select>
+
+	<select id="findconByTwo" resultType="java.lang.String">
+		SELECT
+		character_name
+		FROM characterdict a
+		<include refid="characterdictJoins"/>
+		where
+		id in ( select character_id from cate_cha where category_id in
+		<foreach  collection="ids" item="id" open="(" close=")" separator=",">
+			#{id}
+		</foreach>
+		)
+
+	</select>
+
+	<select id="findconMapByTwo" resultType="map">
+		SELECT
+		character_name
+		FROM characterdict a
+		<include refid="characterdictJoins"/>
+		where
+		id in ( select character_id from cate_cha where category_id in
+		<foreach  collection="ids" item="id" open="(" close=")" separator=",">
+			#{id}
+		</foreach>
+		)
+
+	</select>
+
+	<select id="findAllList" resultType="Characterdict">
+		SELECT
+		<include refid="characterdictColumns"/>
+		FROM characterdict a
+		<include refid="characterdictJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert">
+		INSERT INTO characterdict(
+		id,
+		character_name,
+		character_value,
+		sort,
+		del_flag,
+		create_date,
+		personality_characteristics_id
+		) VALUES (
+		#{id},
+		#{characterName},
+		#{characterValue},
+		#{sort},
+		#{delFlag},
+		#{createDate},
+		#{personalityCharacteristicsId}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE characterdict SET
+		character_name = #{characterName},
+		character_value = #{characterValue},
+		sort = #{sort},
+		personality_characteristics_id=#{personalityCharacteristicsId}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		UPDATE characterdict SET
+		del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+
+
+	<select id="countCharacterByName" resultType="int"  parameterType="map">
+		select count(0) from characterdict where character_name= #{characterName}
+		<if test="id!=null and id!=''"> AND id!= #{id}</if>
+		and del_flag!='1'
+	</select>
+
+</mapper>

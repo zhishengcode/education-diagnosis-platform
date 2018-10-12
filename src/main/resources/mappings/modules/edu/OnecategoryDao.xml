@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.edu.dao.OnecategoryDao">
+
+	<sql id="onecategoryColumns">
+		a.id AS "id",
+		a.firstcategoryname AS "firstcategoryname",
+		a.create_date AS "createDate",
+		a.sort AS "sort"
+	</sql>
+
+	<sql id="onecategoryJoins">
+	</sql>
+
+	<select id="get" resultType="Onecategory">
+		SELECT
+		<include refid="onecategoryColumns"/>
+		FROM onecategory a
+		<include refid="onecategoryJoins"/>
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="Onecategory">
+		SELECT
+		<include refid="onecategoryColumns"/>
+		FROM onecategory a
+		<include refid="onecategoryJoins"/>
+		<where>
+
+			<if test="firstcategoryname != null and firstcategoryname != ''">
+				AND a.firstcategoryname  like CONCAT('%',#{firstcategoryname},'%')
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				order by a.sort ASC
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="Onecategory">
+		SELECT
+		<include refid="onecategoryColumns"/>
+		FROM onecategory a
+		<include refid="onecategoryJoins"/>
+		<where>
+
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert">
+		INSERT INTO onecategory(
+			id,
+			firstcategoryname,
+			create_date,
+			sort
+		) VALUES (
+			#{id},
+			#{firstcategoryname},
+			#{createDate},
+			#{sort}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE onecategory SET 	
+			firstcategoryname = #{firstcategoryname},
+			sort = #{sort}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		DELETE FROM onecategory
+		WHERE id = #{id}
+	</update>
+
+</mapper>
